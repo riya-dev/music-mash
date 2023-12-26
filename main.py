@@ -51,13 +51,42 @@ def get_songs_by_artist(token, artist_id):
     json_result = json.loads(result.content)["tracks"]
     return json_result
 
+def get_recommendations(token, seed_genres, min_danceability, min_energy, min_popularity, max_popularity):
+    url = "https://api.spotify.com/v1/recommendations"
+    headers = get_auth_header(token)
+    
+    params = {
+        "limit": 10,
+        "seed_genres": seed_genres,
+        "min_danceability": min_danceability,
+        "min_energy": min_energy,
+        "min_popularity": min_popularity,
+        "max_popularity": max_popularity,
+    }
+    
+    result = get(url, headers=headers, params=params)
+    json_result = json.loads(result.content)["tracks"]
+    return json_result
+
 token = get_token()
 # print(token)
-result = search_for_artist(token, "Adele")
+result = search_for_artist(token, "Taylor Swift")
 # print(result["name"])
 artist_id = result["id"]
 songs = get_songs_by_artist(token, artist_id)
 # print(songs)
 
-for idx, song in enumerate(songs):
-    print(f"{idx + 1}. {song['name']}")
+# for idx, song in enumerate(songs):
+#     print(f"{idx + 1}. {song['name']}")
+
+# print()
+    
+seed_genres = "pop"
+min_danceability = 0.5
+min_energy = 0.5
+min_popularity = 0
+max_popularity = 50
+recommendations = get_recommendations(token, seed_genres, min_danceability, min_energy, min_popularity, max_popularity)
+
+for idx, track in enumerate(recommendations):
+    print(f"{idx + 1}. {track['name']} by {', '.join(artist['name'] for artist in track['artists'])}")
